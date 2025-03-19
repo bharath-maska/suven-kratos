@@ -14,7 +14,8 @@ RUN go mod tidy && go mod verify
 COPY . .
 
 # Build the Kratos binary
-RUN go build -tags netgo -ldflags '-s -w' -o /kratos ./cmd/kratos
+# RUN go build -tags netgo -ldflags '-s -w' -o /kratos ./cmd/kratos
+RUN go build -mod=vendor -tags netgo -ldflags '-s -w' -o /kratos ./cmd/kratos
 
 # Create a minimal runtime image
 FROM alpine:latest
