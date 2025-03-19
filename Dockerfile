@@ -1,22 +1,22 @@
-# Use an official Golang image as the build stage
+# Use the official Golang image as the build stage
 FROM golang:1.21 AS builder
 
-# Set the working directory inside the container
+# Set working directory inside the container
 WORKDIR /app
 
 # Copy Go module files
 COPY go.mod go.sum ./
 
-# Download dependencies and create a vendor folder
-RUN go mod tidy && go mod vendor
+# Download dependencies and verify them
+RUN go mod tidy && go mod verify
 
-# Copy the rest of the source code
+# Copy the entire source code
 COPY . .
 
-# Build the Kratos binary using the vendor folder
-RUN go build -mod=vendor -tags netgo -ldflags '-s -w' -o /kratos ./cmd/kratos
+# Build the Kratos binary
+RUN go build -tags netgo -ldflags '-s -w' -o /kratos ./cmd/kratos
 
-# Use a minimal base image for the final stage
+# Use a minimal base image for the final container
 FROM debian:bookworm-slim
 
 # Set working directory
@@ -31,5 +31,5 @@ COPY kratos.yml .
 # Expose necessary ports (adjust if needed)
 EXPOSE 4433 4434
 
-# Run Kratos
+# Start Kratos
 CMD ["/kratos", "serve", "-c", "kratos.yml"]
