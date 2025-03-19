@@ -1,8 +1,8 @@
 module github.com/ory/kratos
 
-go 1.24
+go 1.21
 
-toolchain go1.24.0
+toolchain go1.21.0
 
 replace (
 	github.com/coreos/go-oidc/v3 => github.com/ory/go-oidc/v3 v3.0.0-20241127113405-e5362711266b
