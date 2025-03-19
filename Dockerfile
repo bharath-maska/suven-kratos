@@ -20,10 +20,10 @@ RUN go mod tidy && go mod verify
 # Copy the full source code
 COPY . .
 
-# Ensure correct build path
+# Debug: List files
 RUN ls -la /app
 
-# Build Kratos from root directory
+# Build Kratos
 RUN go build -tags netgo -ldflags '-s -w' -o /kratos .
 
 # Final minimal image
