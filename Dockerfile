@@ -1,35 +1,38 @@
-# Use the official Go image as a base
+# Use the official Go image for building Kratos
 FROM golang:1.21 AS builder
 
-# Set the working directory inside the container
+# Set the working directory
 WORKDIR /app
 
-# Copy the Kratos source code into the container
-COPY . .
+# Copy go.mod and go.sum before the full source code (to use Docker caching)
+COPY go.mod go.sum ./
 
 # Download dependencies
-RUN go mod tidy
+RUN go mod tidy && go mod verify
+
+# Copy the rest of the source code
+COPY . .
 
 # Build the Kratos binary
 RUN go build -tags netgo -ldflags '-s -w' -o /kratos ./cmd/kratos
 
-# Use a minimal base image to reduce size
+# Create a minimal runtime image
 FROM alpine:latest
 
-# Install dependencies
+# Install required packages
 RUN apk --no-cache add ca-certificates curl
 
-# Set the working directory inside the container
+# Set working directory
 WORKDIR /root/
 
-# Copy the compiled binary from the builder stage
+# Copy the compiled Kratos binary from the builder stage
 COPY --from=builder /kratos .
 
-# Copy the configuration file (Make sure kratos.yml exists in your repo)
+# Copy the Kratos config file
 COPY ./kratos.yml /root/kratos.yml
 
-# Expose the necessary ports
+# Expose necessary ports
 EXPOSE 4433 4434 4435
 
-# Start Kratos
+# Run Kratos
 CMD ["./kratos", "serve", "-c", "/root/kratos.yml"]
