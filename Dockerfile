@@ -1,11 +1,11 @@
-# Use a generic Debian image (not Render's default Go image)
+# Use Debian as the base image
 FROM debian:bookworm-slim AS builder
 
 # Install dependencies
 RUN apt update && apt install -y curl git gcc
 
-# Install Go 1.24 manually
-RUN curl -fsSL https://go.dev/dl/go1.24.linux-amd64.tar.gz | tar -C /usr/local -xz
+# Install Go 1.21 manually
+RUN curl -fsSL https://go.dev/dl/go1.21.13.linux-amd64.tar.gz | tar -C /usr/local -xz
 ENV PATH="/usr/local/go/bin:${PATH}"
 
 # Set working directory
