@@ -4,7 +4,7 @@ FROM debian:bookworm-slim AS builder
 # Install dependencies
 RUN apt update && apt install -y curl git gcc
 
-# Install Go 1.21 manually
+# Install Go 1.21
 RUN curl -fsSL https://go.dev/dl/go1.21.13.linux-amd64.tar.gz | tar -C /usr/local -xz
 ENV PATH="/usr/local/go/bin:${PATH}"
 
@@ -17,11 +17,14 @@ COPY go.mod go.sum ./
 # Download dependencies
 RUN go mod tidy && go mod verify
 
-# Copy the source code
+# Copy the full source code
 COPY . .
 
-# Build Kratos
-RUN go build -tags netgo -ldflags '-s -w' -o /kratos ./cmd/kratos
+# Ensure correct build path
+RUN ls -la /app
+
+# Build Kratos from root directory
+RUN go build -tags netgo -ldflags '-s -w' -o /kratos .
 
 # Final minimal image
 FROM debian:bookworm-slim
