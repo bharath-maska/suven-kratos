@@ -1,35 +1,33 @@
-# Use the official Golang image as the build stage
-FROM golang:1.21 AS builder
+# Use a generic Debian image (not Render's default Go image)
+FROM debian:bookworm-slim AS builder
 
-# Set working directory inside the container
+# Install dependencies
+RUN apt update && apt install -y curl git gcc
+
+# Install Go 1.24 manually
+RUN curl -fsSL https://go.dev/dl/go1.24.linux-amd64.tar.gz | tar -C /usr/local -xz
+ENV PATH="/usr/local/go/bin:${PATH}"
+
+# Set working directory
 WORKDIR /app
 
 # Copy Go module files
 COPY go.mod go.sum ./
 
-# Download dependencies and verify them
+# Download dependencies
 RUN go mod tidy && go mod verify
 
-# Copy the entire source code
+# Copy the source code
 COPY . .
 
-# Build the Kratos binary
+# Build Kratos
 RUN go build -tags netgo -ldflags '-s -w' -o /kratos ./cmd/kratos
 
-# Use a minimal base image for the final container
+# Final minimal image
 FROM debian:bookworm-slim
-
-# Set working directory
 WORKDIR /app
-
-# Copy the Kratos binary from the builder stage
 COPY --from=builder /kratos /kratos
-
-# Copy necessary config files
 COPY kratos.yml .
 
-# Expose necessary ports (adjust if needed)
 EXPOSE 4433 4434
-
-# Start Kratos
 CMD ["/kratos", "serve", "-c", "kratos.yml"]
