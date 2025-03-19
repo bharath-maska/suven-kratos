@@ -1,6 +1,5 @@
 version: v0.13.0
 
-dsn: postgresql://kratos_db_1rtf_user:Sgfs275RPCV0suTWGFBUqYKFPD5V7nb3@dpg-cvdhk3ofnakc73dhk2m0-a/kratos_db_1rtf
 
 serve:
   public:
